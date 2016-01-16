@@ -684,8 +684,8 @@ void square(int sideLength)
 
 void ellipse(int a, int b)  //a = width; b = height
 {
-  //xAxis.setSpeed(500);
-  //yAxis.setSpeed(500);
+  xAxis.setSpeed(450);
+  yAxis.setSpeed(450);
   wakeXYup();
   Serial.print("drawing ellipse a= "); Serial.print(a); Serial.print(" b= "); Serial.println(b);
   int lastY = 0, intY = 0;
@@ -695,6 +695,7 @@ void ellipse(int a, int b)  //a = width; b = height
   yAxis.move(b);
   Serial.println("moving down");
   down();
+
   //first quadrant
   Serial.println("1st quadrant");
   for(double x = 0;  x < a;  x++)
@@ -712,7 +713,6 @@ void ellipse(int a, int b)  //a = width; b = height
     }
     lastY = intY;
   }
-/*
   //second quadrant
   Serial.println("2nd quadrant");
   for(double x = a;  x > 0;  x--)
@@ -722,9 +722,9 @@ void ellipse(int a, int b)  //a = width; b = height
     intY = round(y);
     setPixel(x, round(y));
 
-    xAxis.move(1);
-    delay(1);
-    if(x > 0)
+    xAxis.move(-1);
+    //delay(1);
+    if(x < a)
     {
         yAxis.move(intY-lastY);
     }
@@ -740,8 +740,8 @@ void ellipse(int a, int b)  //a = width; b = height
     setPixel(x, round(y));
 
     xAxis.move(-1);
-    delay(1);
-    if(x > 0)
+    //delay(1);
+    if(x < 0)
     {
         yAxis.move(intY-lastY);
     }
@@ -756,14 +756,14 @@ void ellipse(int a, int b)  //a = width; b = height
     intY = round(y);
     setPixel(x, round(y));
 
-    xAxis.move(-1);
-    delay(1);
-    if(x > 0)
+    xAxis.move(1);
+    //delay(1);
+    if(x > -a)
     {
         yAxis.move(intY-lastY);
     }
     lastY = intY;
-  }*/
+  }
   sleepXY();
 }
 
@@ -777,7 +777,7 @@ void circle(int radius)
 
 void setPixel(int x, int y)
 {
-  Serial.print(x); Serial.print("\t"); Serial.println(y);
+  Serial.print(x); /*Serial.print("\t");*/ Serial.println(y);
   /*for(int i = 0; i < y; i++)
     Serial.print(" ");
   Serial.println(".");*/

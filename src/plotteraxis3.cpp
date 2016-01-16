@@ -64,7 +64,7 @@ int PlotterAxis3::move(long StepsToMove)
     StepsToMove = StepsToMove * steppingFactor;
     if(position + StepsToMove > maximum || position + StepsToMove < 0)
         return 1;
-    /*Serial.print("\nstepsToMove: ");  Serial.println(StepsToMove);
+   /* Serial.print("\nstepsToMove: ");  Serial.println(StepsToMove);
     Serial.print("stepDelay: ");    Serial.println(stepDelayTime);
     Serial.print("speed: ");    Serial.println(speed);
     Serial.print("microStepping: ");    Serial.println(microsteppingFactor);
