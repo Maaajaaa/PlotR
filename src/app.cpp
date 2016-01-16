@@ -46,7 +46,8 @@ void setup()
   xAxis.setMaximum(8500);   //bcs of servo wire
   yAxis.setMaximum(8500);   //top of the paper (in alpha bed)
   xAxis.setMicrostepping(2); //halfstepping (via HW enabled)
-  yAxis.setMicrostepping(2);
+  yAxis.setMicrostepping(1);
+  yAxis.setSpeed(1000);
   zAxis.attach(11);
   zAxis.write(130);
   sleepXY();
@@ -243,9 +244,12 @@ int processInputCommand(String inputString)
   {
     help();
     validMethode = true;
-    if(amountOfParameters == 0)
+    if(amountOfParameters == 0){
       parametersOK = true;
       Serial.println("[done]");
+    }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("moveX"))
@@ -255,6 +259,8 @@ int processInputCommand(String inputString)
       parametersOK = true;
       moveX(parameters[0]);
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("moveY"))
@@ -264,6 +270,8 @@ int processInputCommand(String inputString)
       parametersOK = true;
       moveY(parameters[0]);
     }
+    else
+        parametersOK = false;
   }
 
 
@@ -275,6 +283,8 @@ int processInputCommand(String inputString)
       moveXY(parameters[0], parameters[1]);
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
 
@@ -286,6 +296,8 @@ int processInputCommand(String inputString)
       xAxis.reset();
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
 
@@ -297,6 +309,8 @@ int processInputCommand(String inputString)
       yAxis.reset();
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
 
@@ -310,6 +324,8 @@ int processInputCommand(String inputString)
       xAxis.reset();
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   /*if(methode.equalsIgnoreCase("disable")) {
@@ -403,6 +419,8 @@ int processInputCommand(String inputString)
       Serial.println(xAxis.getPosition());
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("positionY"))
@@ -413,6 +431,8 @@ int processInputCommand(String inputString)
       Serial.println(yAxis.getPosition());
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("verboseOn"))
@@ -423,6 +443,8 @@ int processInputCommand(String inputString)
       verboseOutput = true;
       parametersOK = true;
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("verboseOff"))
@@ -433,6 +455,8 @@ int processInputCommand(String inputString)
       verboseOutput = false;
       parametersOK = true;
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("square"))
@@ -443,6 +467,8 @@ int processInputCommand(String inputString)
       parametersOK = true;
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("up"))
@@ -453,6 +479,8 @@ int processInputCommand(String inputString)
       up();
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("down"))
@@ -463,18 +491,23 @@ int processInputCommand(String inputString)
       down();
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("ram"))
   {
     validMethode = true;
-    if(amountOfParameters == 0)
+    if(amountOfParameters == 0){
       parametersOK = true;
       Serial.print("free RAM: ");
       extern int __heap_start, *__brkval;
       int v;
       Serial.println((int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval));
       Serial.println("[done]");
+    }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("diagonal"))
@@ -491,6 +524,8 @@ int processInputCommand(String inputString)
       parametersOK = true;
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("circle"))
@@ -501,6 +536,8 @@ int processInputCommand(String inputString)
       parametersOK = true;
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
 
   if(methode.equalsIgnoreCase("ellipse"))
@@ -511,7 +548,23 @@ int processInputCommand(String inputString)
       parametersOK = true;
       Serial.println("[done]");
     }
+    else
+        parametersOK = false;
   }
+
+  if(methode.equalsIgnoreCase("microSteppingInfo"))
+  {
+    validMethode = true;
+    if(amountOfParameters == 0)
+    {
+      parametersOK = true;
+      Serial.print("x: ");    Serial.println(xAxis.getMicroStepping());
+      Serial.print("y: ");    Serial.println(yAxis.getMicroStepping());
+    }
+    else
+        parametersOK = false;
+  }
+
 
   if(!validMethode)
   {
@@ -597,17 +650,20 @@ void bresenham(int x1, int y1)
   int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
   int err = dx+dy, e2;
   Serial.println("x;y");
-  while(1){
+  while(1)
+  {
     Serial.print(x0); Serial.print(";"); Serial.println(y0);
     if (x0==x1 && y0==y1) break;
     e2 = 2*err;
-    if (e2 > dy){
+    if (e2 > dy)
+    {
       err += dy;
       x0 += sx;
       xAxis.move(1);
     } /* e_xy+e_x > 0 */
 
-    if (e2 < dx){
+    if (e2 < dx)
+    {
       err += dx;
       y0 += sy;
       yAxis.move(1);
@@ -628,14 +684,16 @@ void square(int sideLength)
 
 void ellipse(int a, int b)  //a = width; b = height
 {
-  xAxis.setSpeed(500);
-  yAxis.setSpeed(500);
+  //xAxis.setSpeed(500);
+  //yAxis.setSpeed(500);
   wakeXYup();
   Serial.print("drawing ellipse a= "); Serial.print(a); Serial.print(" b= "); Serial.println(b);
   int lastY = 0, intY = 0;
   double y, aD = a, bD = b;
   up();
+  Serial.println("moving to top");
   yAxis.move(b);
+  Serial.println("moving down");
   down();
   //first quadrant
   Serial.println("1st quadrant");
@@ -645,8 +703,8 @@ void ellipse(int a, int b)  //a = width; b = height
     y = sqrt( (bD*bD) * ( 1 - ( (x*x) / (aD*aD) )));
     intY = round(y);
     setPixel(x, intY);
-    xAxis.move(2);
-    delay(1);
+    xAxis.move(1);
+    //delay(1);
     if(x > 0)
     {
       yAxis.move(intY-lastY);
@@ -654,7 +712,7 @@ void ellipse(int a, int b)  //a = width; b = height
     }
     lastY = intY;
   }
-
+/*
   //second quadrant
   Serial.println("2nd quadrant");
   for(double x = a;  x > 0;  x--)
@@ -705,7 +763,7 @@ void ellipse(int a, int b)  //a = width; b = height
         yAxis.move(intY-lastY);
     }
     lastY = intY;
-  }
+  }*/
   sleepXY();
 }
 

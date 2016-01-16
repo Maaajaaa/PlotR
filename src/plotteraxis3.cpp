@@ -60,11 +60,15 @@ void PlotterAxis3::setPosition(long PositionToMove)
 }
 
 int PlotterAxis3::move(long StepsToMove)
-{
+{  
+    StepsToMove = StepsToMove * steppingFactor;
     if(position + StepsToMove > maximum || position + StepsToMove < 0)
         return 1;
-    //StepsToMove = StepsToMove * steppingFactor;
-    Serial.print("\nstepsToMove: ");  Serial.println(StepsToMove);
+    /*Serial.print("\nstepsToMove: ");  Serial.println(StepsToMove);
+    Serial.print("stepDelay: ");    Serial.println(stepDelayTime);
+    Serial.print("speed: ");    Serial.println(speed);
+    Serial.print("microStepping: ");    Serial.println(microsteppingFactor);
+    Serial.print("numberOfSteps: ");    Serial.println(numberOfSteps);*/
     if(StepsToMove >= 0) //fwd
     {
         setDirection(0);
@@ -72,7 +76,7 @@ int PlotterAxis3::move(long StepsToMove)
         {
             step();
             position++;
-            delay(stepDelayTime);
+            delayMicroseconds(stepDelayTime);
         }
     }
     else    //rwd
@@ -83,7 +87,7 @@ int PlotterAxis3::move(long StepsToMove)
         {
             step();
             position--;
-            delay(stepDelayTime);
+            delayMicroseconds(stepDelayTime);
         }
     }
 
@@ -97,7 +101,7 @@ void PlotterAxis3::reset()
     while(!digitalRead(forklightPin))
     {
         step();
-        delay(stepDelayTime);
+        delayMicroseconds(stepDelayTime);
     }
     position = 0;
     sleep();
@@ -106,7 +110,7 @@ void PlotterAxis3::reset()
 void PlotterAxis3::setSpeed(long Speed)
 {
     speed = Speed;
-    stepDelayTime = 60L * 1000L / (long)(numberOfSteps * speed * microsteppingFactor);
+    stepDelayTime = 60L * 1000L * 1000L / (long)(numberOfSteps * speed * microsteppingFactor);
 }
 
 long PlotterAxis3::getSpeed()
@@ -127,11 +131,17 @@ void PlotterAxis3::setMaximum(long Maximum)
 void PlotterAxis3::setMicrostepping(int MicrosteppingFactor)
 {
     microsteppingFactor = MicrosteppingFactor;
-    stepDelayTime = 60L * 1000L / (long)(numberOfSteps * speed * microsteppingFactor);
+    stepDelayTime = 60L * 1000L * 1000L / (long)(numberOfSteps * speed * microsteppingFactor);
     if(disableMicrostepping)
         steppingFactor = microsteppingFactor;
-    Serial.print("µSteppingFactor: ");  Serial.println(microsteppingFactor);
-    Serial.print("steppingFactor: ");  Serial.println(steppingFactor);
+    //Serial.print("µSteppingFactor: ");  Serial.println(microsteppingFactor);
+    //Serial.print("steppingFactor: ");  Serial.println(steppingFactor);
+}
+
+String PlotterAxis3::getMicroStepping()
+{
+    String returnString = "microSteppingFactor: " + String(microsteppingFactor) + " SteppingFactor: " + String(steppingFactor);
+    return returnString;
 }
 
 void PlotterAxis3::enableMicrostepping(bool EnableMicrostepping)
@@ -140,7 +150,7 @@ void PlotterAxis3::enableMicrostepping(bool EnableMicrostepping)
     if(disableMicrostepping)
         steppingFactor = microsteppingFactor;
     else
-        steppingFactor = 0;
+        steppingFactor = 1;
 }
 
 void PlotterAxis3::sleep()
