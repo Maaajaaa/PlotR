@@ -21,10 +21,12 @@ PlotterAxis3::PlotterAxis3(int NumberOfSteps, int DirectionPin,int StepPin, int 
 
     position = 0;
     maximum = 0;
+    minimum = 0;
     setSpeed(500);
     setMaximum(2000);
     disableMicrostepping = true;
     setMicrostepping(1);
+    enableReversedDircetion(false);
 
     pinMode(DirectionPin, OUTPUT);
     pinMode(StepPin, OUTPUT);
@@ -62,7 +64,7 @@ void PlotterAxis3::setPosition(long PositionToMove)
 int PlotterAxis3::move(long StepsToMove)
 {  
     StepsToMove = StepsToMove * steppingFactor;
-    if(position + StepsToMove > maximum || position + StepsToMove < 0)
+    if(position + StepsToMove > maximum || position + StepsToMove < minimum)
         return 1;
    /* Serial.print("\nstepsToMove: ");  Serial.println(StepsToMove);
     Serial.print("stepDelay: ");    Serial.println(stepDelayTime);
@@ -123,6 +125,11 @@ long PlotterAxis3::getMaximum()
     return maximum;
 }
 
+void PlotterAxis3::setMinimum(long Minimum)
+{
+    minimum = Minimum;
+}
+
 void PlotterAxis3::setMaximum(long Maximum)
 {
     maximum = Maximum;
@@ -151,6 +158,11 @@ void PlotterAxis3::enableMicrostepping(bool EnableMicrostepping)
         steppingFactor = microsteppingFactor;
     else
         steppingFactor = 1;
+}
+
+void PlotterAxis3::enableReversedDircetion(bool Reverse)
+{
+    reverseDirection = Reverse;
 }
 
 void PlotterAxis3::sleep()
@@ -187,6 +199,9 @@ void PlotterAxis3::step()
 
 void PlotterAxis3::setDirection(bool Direction)
 {
-    digitalWrite(directionPin, Direction);
+    if(!reverseDirection)
+        digitalWrite(directionPin, Direction);
+    else
+        digitalWrite(directionPin, !Direction);
     delayMicroseconds(100);
 }

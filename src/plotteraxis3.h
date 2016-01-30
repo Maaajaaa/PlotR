@@ -21,9 +21,11 @@ public:
     long getSpeed();
     void setMaximum(long Maximum);
     long getMaximum();
+    void setMinimum(long Minimum);
     void setMicrostepping(int MicrosteppingFactor);
     String getMicroStepping();
     void enableMicrostepping(bool EnableMicrostepping);
+    void enableReversedDircetion(bool Reverse);
     void sleep();
     void wakeUp();
     bool isSleeping();
@@ -35,11 +37,11 @@ private:
 
     int stepNumber, numberOfSteps, microsteppingFactor, steppingFactor;
     byte directionPin, stepPin, sleepPin, forklightPin;
-    long position, speed;
+    long speed;
     unsigned int stepDelayTime;
     int resolution;
-    long maximum;
-    bool sleeping, disableMicrostepping;
+    long maximum, minimum, position;
+    bool sleeping, disableMicrostepping, reverseDirection;
 
     //bool direction;
 };

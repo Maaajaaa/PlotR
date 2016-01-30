@@ -33,6 +33,8 @@ void circle(int radius);
 void setPixel(int x, int y);
 void wakeXYup();
 void sleepXY();
+void papaPattern(int offsetMM, int sideLenght, int c);
+void papaPatternPlus(int sideLenghtx, int sideLenghty, int offsetMMx, int offsetMMy, int c);
 
 void setup()
 {
@@ -47,6 +49,7 @@ void setup()
   yAxis.setMaximum(8500);   //top of the paper (in alpha bed)
   xAxis.setMicrostepping(2); //halfstepping (via HW enabled)
   yAxis.setMicrostepping(1);
+  yAxis.enableReversedDircetion(true);
   yAxis.setSpeed(1000);
   zAxis.attach(11);
   zAxis.write(130);
@@ -75,7 +78,7 @@ void loop()
 
 void diagonal(int lenght, int direction = 1)
 {
-  wakeXYup();
+  /*wakeXYup();
   if (lenght < 0)
   {
     Serial.println("ERROR only positve values are supported (yet) for diagonal"); return;
@@ -94,7 +97,7 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(1); /*Serial.print("X"); Serial.println(i);*/
+          xAxis.move(1); /*Serial.print("X"); Serial.println(i);*//*
         }
       }
     break;
@@ -105,7 +108,7 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(-1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(-1); /*Serial.print("X"); Serial.println(i);*/
+          xAxis.move(-1); /*Serial.print("X"); Serial.println(i);*//*
         }
       }
     break;
@@ -116,7 +119,7 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(-1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(1); /*Serial.print("X"); Serial.println(i);*/
+          xAxis.move(1); /*Serial.print("X"); Serial.println(i);*//*
         }
       }
     break;
@@ -127,12 +130,12 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(-1); /*Serial.print("X"); Serial.println(i);*/
+          xAxis.move(-1); /*Serial.print("X"); Serial.println(i);*//*
         }
       }
     break;
   }
-  sleepXY();
+  sleepXY();*/
 }
 
 int processInputCommand(String inputString)
@@ -560,8 +563,28 @@ int processInputCommand(String inputString)
       parametersOK = true;
       Serial.print("x: ");    Serial.println(xAxis.getMicroStepping());
       Serial.print("y: ");    Serial.println(yAxis.getMicroStepping());
+      Serial.println("[done]");
     }
     else
+        parametersOK = false;
+  }
+
+  if(methode.equalsIgnoreCase("PapaPattern"))
+  {
+    validMethode = true;
+    if(amountOfParameters == 3)
+    {
+      papaPattern(parameters[0], parameters[1] , parameters[2]);
+      parametersOK = true;
+      Serial.println("[done]");
+    }
+    else
+        if(amountOfParameters == 5){
+          papaPatternPlus(parameters[0], parameters[1] , parameters[2], parameters[3], parameters[4]);
+          parametersOK = true;
+          Serial.println("[done]");
+        }
+        else
         parametersOK = false;
   }
 
@@ -773,6 +796,72 @@ void circle(int radius)
   Serial.println(radius / XmmSt);
   Serial.println(radius / YmmSt);
   ellipse(radius / XmmSt, radius / YmmSt);
+}
+
+void papaPattern(int sideLenght, int offsetMM, int c)
+{
+    wakeXYup();
+    down();
+    long startPositionX = xAxis.getPosition();
+    long startPositionY = yAxis.getPosition();
+    int sideLenghtStepsX = sideLenght / XmmSt;
+    int sideLenghtStepsY = sideLenght / YmmSt;
+    int offsetX = offsetMM / XmmSt;
+    int offsetY = offsetMM / YmmSt;
+
+    Serial.println(sideLenghtStepsX);
+    Serial.println(sideLenghtStepsY);
+    Serial.println(offsetX);
+    Serial.println(offsetY);
+
+    for(int i = 0; i < c; i++)
+    {
+        yAxis.move(sideLenghtStepsY);
+        xAxis.move(sideLenghtStepsX);
+        yAxis.move(-offsetY);
+        xAxis.move(-offsetX);
+    }
+    //nice finish
+    yAxis.move(offsetY);
+    /*yAxis.move(sideLenghtStepsY);
+    xAxis.move(sideLenghtStepsX);*/
+
+    Serial.print("moved "); Serial.print(xAxis.getPosition()-startPositionX);    Serial.print(" X-Steps and ");   Serial.print(yAxis.getPosition()-startPositionY);    Serial.println(" Y-Steps");
+    sleepXY();
+    up();
+}
+
+void papaPatternPlus(int sideLenghtx, int sideLenghty, int offsetMMx, int offsetMMy, int c)
+{
+    wakeXYup();
+    down();
+    long startPositionX = xAxis.getPosition();
+    long startPositionY = yAxis.getPosition();
+    int sideLenghtStepsX = sideLenghtx / XmmSt;
+    int sideLenghtStepsY = sideLenghty / YmmSt;
+    int offsetX = offsetMMx / XmmSt;
+    int offsetY = offsetMMy / YmmSt;
+
+    Serial.println(sideLenghtStepsX);
+    Serial.println(sideLenghtStepsY);
+    Serial.println(offsetX);
+    Serial.println(offsetY);
+
+    for(int i = 0; i < c; i++)
+    {
+        yAxis.move(sideLenghtStepsY);
+        xAxis.move(sideLenghtStepsX);
+        yAxis.move(-offsetY);
+        xAxis.move(-offsetX);
+    }
+    //nice finish
+    yAxis.move(offsetY);
+    /*yAxis.move(sideLenghtStepsY);
+    xAxis.move(sideLenghtStepsX);*/
+
+    Serial.print("moved "); Serial.print(xAxis.getPosition()-startPositionX);    Serial.print(" X-Steps and ");   Serial.print(yAxis.getPosition()-startPositionY);    Serial.println(" Y-Steps");
+    sleepXY();
+    up();
 }
 
 void setPixel(int x, int y)
