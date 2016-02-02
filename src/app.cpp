@@ -2,13 +2,13 @@
 //#include "/home/mattis/sketchbook/libraries/PlotterAxis3/PlotterAxis3.h"
 //#include "plotteraxis3.h"
 #include "Arduino.h"
-#include "plotteraxis3.h"
+#include "plottraxis3.h"
 #include "Servo.h"
 //#include "/home/mattis/Coding/Qt/Arduino/Servo4QtDuino/src/Servo.h"
 
 //PlotterAxis3(int NumberOfSteps, int DirectionPin,int StepPin, int SleepPin, int ForklightPin);
-PlotterAxis3 xAxis(48, 4, 5, 6, 2);
-PlotterAxis3 yAxis(48, 7, 8, 9, 3);
+PlottRAxis3 xAxis(48, 4, 5, 6, 2);
+PlottRAxis3 yAxis(48, 7, 8, 9, 3);
 Servo zAxis;
 String inputString = "";
 char inputChar; // Where to store the character read
