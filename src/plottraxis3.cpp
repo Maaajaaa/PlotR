@@ -11,7 +11,7 @@
 
 #include "plotteraxis3.h"
 
-PlotterAxis3::PlotterAxis3(int NumberOfSteps, int DirectionPin,int StepPin, int SleepPin, int ForklightPin)
+PlottRAxis3::PlottRAxis3(int NumberOfSteps, int DirectionPin,int StepPin, int SleepPin, int ForklightPin)
 {
     numberOfSteps = NumberOfSteps;
     directionPin = DirectionPin;
@@ -39,12 +39,12 @@ PlotterAxis3::PlotterAxis3(int NumberOfSteps, int DirectionPin,int StepPin, int 
     //digitalWrite(forklightPin, HIGH);   //activate pull-up resistors for forklightPin
 }
 
-long PlotterAxis3::getPosition()
+long PlottRAxis3::getPosition()
 {
     return position;
 }
 
-void PlotterAxis3::setPosition(long PositionToMove)
+void PlottRAxis3::setPosition(long PositionToMove)
 {
     Serial.print("...");
     if(PositionToMove >= 0)
@@ -61,7 +61,7 @@ void PlotterAxis3::setPosition(long PositionToMove)
     //position = position_to_move;
 }
 
-int PlotterAxis3::move(long StepsToMove)
+int PlottRAxis3::move(long StepsToMove)
 {  
     StepsToMove = StepsToMove * steppingFactor;
     if(position + StepsToMove > maximum || position + StepsToMove < minimum)
@@ -96,7 +96,7 @@ int PlotterAxis3::move(long StepsToMove)
     return 0;
 }
 
-void PlotterAxis3::reset()
+void PlottRAxis3::reset()
 {
     wakeUp();
     setDirection(1);
@@ -109,33 +109,33 @@ void PlotterAxis3::reset()
     sleep();
 }
 
-void PlotterAxis3::setSpeed(long Speed)
+void PlottRAxis3::setSpeed(long Speed)
 {
     speed = Speed;
     stepDelayTime = 60L * 1000L * 1000L / (long)(numberOfSteps * speed * microsteppingFactor);
 }
 
-long PlotterAxis3::getSpeed()
+long PlottRAxis3::getSpeed()
 {
     return speed;
 }
 
-long PlotterAxis3::getMaximum()
+long PlottRAxis3::getMaximum()
 {
     return maximum;
 }
 
-void PlotterAxis3::setMinimum(long Minimum)
+void PlottRAxis3::setMinimum(long Minimum)
 {
     minimum = Minimum;
 }
 
-void PlotterAxis3::setMaximum(long Maximum)
+void PlottRAxis3::setMaximum(long Maximum)
 {
     maximum = Maximum;
 }
 
-void PlotterAxis3::setMicrostepping(int MicrosteppingFactor)
+void PlottRAxis3::setMicrostepping(int MicrosteppingFactor)
 {
     microsteppingFactor = MicrosteppingFactor;
     stepDelayTime = 60L * 1000L * 1000L / (long)(numberOfSteps * speed * microsteppingFactor);
@@ -145,13 +145,13 @@ void PlotterAxis3::setMicrostepping(int MicrosteppingFactor)
     //Serial.print("steppingFactor: ");  Serial.println(steppingFactor);
 }
 
-String PlotterAxis3::getMicroStepping()
+String PlottRAxis3::getMicroStepping()
 {
     String returnString = "microSteppingFactor: " + String(microsteppingFactor) + " SteppingFactor: " + String(steppingFactor);
     return returnString;
 }
 
-void PlotterAxis3::enableMicrostepping(bool EnableMicrostepping)
+void PlottRAxis3::enableMicrostepping(bool EnableMicrostepping)
 {
     disableMicrostepping = !EnableMicrostepping;
     if(disableMicrostepping)
@@ -160,36 +160,36 @@ void PlotterAxis3::enableMicrostepping(bool EnableMicrostepping)
         steppingFactor = 1;
 }
 
-void PlotterAxis3::enableReversedDircetion(bool Reverse)
+void PlottRAxis3::enableReversedDircetion(bool Reverse)
 {
     reverseDirection = Reverse;
 }
 
-void PlotterAxis3::sleep()
+void PlottRAxis3::sleep()
 {
     digitalWrite(sleepPin, LOW);    //sleep on
     delayMicroseconds(100);
     sleeping = true;
 }
 
-void PlotterAxis3::wakeUp()
+void PlottRAxis3::wakeUp()
 {
     digitalWrite(sleepPin, HIGH);   //sleep off
     delayMicroseconds(100);
     sleeping = false;
 }
 
-bool PlotterAxis3::isSleeping()
+bool PlottRAxis3::isSleeping()
 {
     return sleeping;
 }
 
-int PlotterAxis3::version()
+int PlottRAxis3::version()
 {
     return 1;
 }
 
-void PlotterAxis3::step()
+void PlottRAxis3::step()
 {
     digitalWrite(stepPin, HIGH);
     delayMicroseconds(100);
@@ -197,7 +197,7 @@ void PlotterAxis3::step()
     delayMicroseconds(100);
 }
 
-void PlotterAxis3::setDirection(bool Direction)
+void PlottRAxis3::setDirection(bool Direction)
 {
     if(!reverseDirection)
         digitalWrite(directionPin, Direction);
