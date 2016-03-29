@@ -1,14 +1,12 @@
-//#include </home/mattis/.arduino-1.6.7/hardware/arduino/avr/cores/arduino/Arduino.h>
-//#include "/home/mattis/sketchbook/libraries/PlotterAxis3/PlotterAxis3.h"
-//#include "plotteraxis3.h"
 #include "Arduino.h"
 #include "plottraxis3.h"
 #include "Servo.h"
-//#include "/home/mattis/Coding/Qt/Arduino/Servo4QtDuino/src/Servo.h"
 
 //PlotterAxis3(int NumberOfSteps, int DirectionPin,int StepPin, int SleepPin, int ForklightPin);
-PlottRAxis3 xAxis(48, 4, 5, 6, 2);
-PlottRAxis3 yAxis(48, 7, 8, 9, 3);
+/*PlottRAxis3 xAxis(48, 4, 5, 6, 2);
+PlottRAxis3 yAxis(48, 7, 8, 9, 3);*/
+PlottRAxis3 xAxis(48, 6, 5, 4, 3);
+PlottRAxis3 yAxis(48, 9, 8, 7, 2); //new pinout for shield
 Servo zAxis;
 String inputString = "";
 char inputChar; // Where to store the character read
@@ -18,11 +16,16 @@ bool verboseOutput = false;
 #define  XmmSt  0.02108333 // mm per Step
 #define  YmmSt  0.020875
 
+#define unsInt unsigned int //abrevation
+#define notchLenghtPerSide 2 //length of the notches of a coordinate system (in mm)
+
 void diagonal(int lenght, int direction);
 int processInputCommand(String inputString);
 void help();
 void up();
 void down();
+int moveYmm(int millimeters);
+int moveXmm(int millimeters);
 void moveX(int xSteps);
 void moveY(int ySteps);
 void moveXY(int xMM, int yMM);
@@ -33,6 +36,12 @@ void circle(int radius);
 void setPixel(int x, int y);
 void wakeXYup();
 void sleepXY();
+
+void coordinateSystem(unsInt type, unsInt xLenghtPerSide, unsInt yLenghtPerSide, unsInt notchesSpace);
+void linearFunction(int m, int n, int xLengthPerSide_mm, int quadrants, int unitlength_mm);
+void drawHorizontalNotch();
+void drawVerticalNotch();
+
 void papaPattern(int offsetMM, int sideLenght, int c);
 void papaPatternPlus(int sideLenghtx, int sideLenghty, int offsetMMx, int offsetMMy, int c);
 
@@ -43,12 +52,12 @@ void setup()
   Serial.print("Hello user! This is the PlotR with PlotterAxis3 V");
   Serial.println(xAxis.version());
   Serial.println();
-  xAxis.setSpeed(1000); //orig 1000
+  xAxis.setSpeed(2000); //orig 1000
   yAxis.setSpeed(1000);
   xAxis.setMaximum(8500);   //bcs of servo wire
   yAxis.setMaximum(8500);   //top of the paper (in alpha bed)
   xAxis.setMicrostepping(2); //halfstepping (via HW enabled)
-  yAxis.setMicrostepping(1);
+  yAxis.setMicrostepping(1); //full steps (no changes)
   yAxis.enableReversedDircetion(true);
   yAxis.setSpeed(1000);
   zAxis.attach(11);
@@ -97,7 +106,7 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(1); /*Serial.print("X"); Serial.println(i);*//*
+          xAxis.move(1); Serial.print("X"); Serial.println(i);
         }
       }
     break;
@@ -108,7 +117,7 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(-1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(-1); /*Serial.print("X"); Serial.println(i);*//*
+          xAxis.move(-1); Serial.print("X"); Serial.println(i);
         }
       }
     break;
@@ -119,7 +128,7 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(-1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(1); /*Serial.print("X"); Serial.println(i);*//*
+          xAxis.move(1); Serial.print("X"); Serial.println(i);
         }
       }
     break;
@@ -130,7 +139,7 @@ void diagonal(int lenght, int direction = 1)
         yAxis.move(1); //Serial.print("Y"); Serial.println(i); //DEBUG
         if( !(  i == 101 || i== 202 || i== 304 || i== 405 || i== 506 || i== 607 || i== 709 || i== 810 || i== 911 || i== 1012 || i== 1114 || i== 1215 || i== 1316 || i== 1417 || i== 1519 || i== 1620 || i== 1721 || i== 1822 || i== 1924 || i== 2025 || i== 2126 || i== 2227 || i== 2329 || i== 2430 || i== 2531 || i== 2632 || i== 2734 || i== 2835 || i== 2934 || i== 2936  || i== 3037 || i== 3139  || i== 3240 || i== 3341  || i== 3442  || i== 3544  || i== 3645|| i== 3746  || i== 3847  || i== 3949  || i== 4050  || i== 4151  || i== 4252  || i== 4354  || i== 4455  || i== 4556  || i== 4657  || i== 4759 || i== 4860  || i== 4961 || i== 5062  || i== 5164))
         {
-          xAxis.move(-1); /*Serial.print("X"); Serial.println(i);*//*
+          xAxis.move(-1); Serial.print("X"); Serial.println(i);
         }
       }
     break;
@@ -175,6 +184,10 @@ int processInputCommand(String inputString)
       }
     }
   }
+
+
+
+  String methode = inputString.substring(0, beginBracket);
 
   if(verboseOutput)
   {
@@ -235,8 +248,6 @@ int processInputCommand(String inputString)
     }
   }
 
-
-  String methode = inputString.substring(0, beginBracket);
   if(verboseOutput)
   {
     Serial.print("Methode:   ");  Serial.println(methode);
@@ -255,7 +266,7 @@ int processInputCommand(String inputString)
         parametersOK = false;
   }
 
-  if(methode.equalsIgnoreCase("moveX"))
+  if(methode.equalsIgnoreCase("moveXsteps"))
   {
     validMethode = true;
     if(amountOfParameters == 1) {
@@ -266,7 +277,18 @@ int processInputCommand(String inputString)
         parametersOK = false;
   }
 
-  if(methode.equalsIgnoreCase("moveY"))
+  if(methode.equalsIgnoreCase("moveX"))
+  {
+    validMethode = true;
+    if(amountOfParameters == 1) {
+      parametersOK = true;
+      moveX(parameters[0]/XmmSt);
+    }
+    else
+        parametersOK = false;
+  }
+
+  if(methode.equalsIgnoreCase("moveYsteps"))
   {
     validMethode = true;
     if(amountOfParameters == 1) {
@@ -277,8 +299,31 @@ int processInputCommand(String inputString)
         parametersOK = false;
   }
 
+  if(methode.equalsIgnoreCase("moveY"))
+  {
+    validMethode = true;
+    if(amountOfParameters == 1) {
+      parametersOK = true;
+      moveY(parameters[0]/YmmSt);
+    }
+    else
+        parametersOK = false;
+  }
+
 
   if(methode.equalsIgnoreCase("move"))
+  {
+    validMethode = true;
+    if(amountOfParameters == 2) {
+      parametersOK = true;
+      moveXY(parameters[0]/XmmSt, parameters[1]/YmmSt);
+      Serial.println("[done]");
+    }
+    else
+        parametersOK = false;
+  }
+
+  if(methode.equalsIgnoreCase("moveSteps"))
   {
     validMethode = true;
     if(amountOfParameters == 2) {
@@ -296,6 +341,7 @@ int processInputCommand(String inputString)
     validMethode = true;
     if(amountOfParameters == 0) {
       parametersOK = true;
+      up();
       xAxis.reset();
       Serial.println("[done]");
     }
@@ -309,6 +355,7 @@ int processInputCommand(String inputString)
     validMethode = true;
     if(amountOfParameters == 0) {
       parametersOK = true;
+      up();
       yAxis.reset();
       Serial.println("[done]");
     }
@@ -323,6 +370,7 @@ int processInputCommand(String inputString)
     if(amountOfParameters == 0) {
       Serial.println("resetting");
       parametersOK = true;
+      up();
       yAxis.reset();
       xAxis.reset();
       Serial.println("[done]");
@@ -414,7 +462,7 @@ int processInputCommand(String inputString)
     }
   }*/
 
-  if(methode.equalsIgnoreCase("positionX"))
+  if(methode.equalsIgnoreCase("positionXsteps"))
   {
     validMethode = true;
     if (amountOfParameters == 0) {
@@ -426,12 +474,36 @@ int processInputCommand(String inputString)
         parametersOK = false;
   }
 
-  if(methode.equalsIgnoreCase("positionY"))
+  if(methode.equalsIgnoreCase("positionX"))
+  {
+    validMethode = true;
+    if (amountOfParameters == 0) {
+      parametersOK = true;
+      Serial.println(xAxis.getPosition()/XmmSt);
+      Serial.println("[done]");
+    }
+    else
+        parametersOK = false;
+  }
+
+  if(methode.equalsIgnoreCase("positionYsteps"))
   {
     validMethode = true;
     if (amountOfParameters == 0) {
       parametersOK = true;
       Serial.println(yAxis.getPosition());
+      Serial.println("[done]");
+    }
+    else
+        parametersOK = false;
+  }
+
+  if(methode.equalsIgnoreCase("positionY"))
+  {
+    validMethode = true;
+    if (amountOfParameters == 0) {
+      parametersOK = true;
+      Serial.println(yAxis.getPosition()/YmmSt);
       Serial.println("[done]");
     }
     else
@@ -513,7 +585,7 @@ int processInputCommand(String inputString)
         parametersOK = false;
   }
 
-  if(methode.equalsIgnoreCase("diagonal"))
+  /*if(methode.equalsIgnoreCase("diagonal"))
   {
     validMethode = true;
     if(amountOfParameters == 1) {
@@ -529,7 +601,7 @@ int processInputCommand(String inputString)
     }
     else
         parametersOK = false;
-  }
+  }*/
 
   if(methode.equalsIgnoreCase("circle"))
   {
@@ -585,9 +657,46 @@ int processInputCommand(String inputString)
           Serial.println("[done]");
         }
         else
-        parametersOK = false;
+            parametersOK = false;
   }
 
+  if(methode.equalsIgnoreCase("coordinateSystem"))
+  {
+      validMethode = true;
+      if(amountOfParameters == 4)
+      {
+        coordinateSystem(parameters[0], parameters[1] , parameters[2],parameters[3]);
+        parametersOK = true;
+        Serial.println("[done]");
+      }
+      else
+          parametersOK = false;
+  }
+
+  if(methode.equalsIgnoreCase("drawHorizontalNotch"))
+  {
+      validMethode = true;
+      if(amountOfParameters == 0)
+      {
+          parametersOK = true;
+          drawHorizontalNotch();
+      }
+      else
+          parametersOK = false;
+  }
+
+  if(methode.equalsIgnoreCase("linFunct"))
+  {
+      validMethode = true;
+      if(amountOfParameters == 5)
+      {
+        parametersOK = true;
+        linearFunction(parameters[0], parameters[1] , parameters[2], parameters[3],parameters[4]);
+        Serial.println("[done]");
+      }
+      else
+          parametersOK = false;
+  }
 
   if(!validMethode)
   {
@@ -632,6 +741,22 @@ void down()
   zAxis.write(100);
 }
 
+int moveXmm(int millimeters)
+{
+    xAxis.wakeUp();
+    int error = xAxis.move(millimeters/XmmSt);
+    xAxis.sleep();
+    return error;
+}
+
+int moveYmm(int millimeters)
+{
+    yAxis.wakeUp();
+    int error = yAxis.move(millimeters/XmmSt);
+    yAxis.sleep();
+    return error;
+}
+
 void moveX(int xSteps)
 {
   xAxis.wakeUp();
@@ -656,11 +781,11 @@ void moveY(int ySteps)
   yAxis.sleep();
 }
 
-void moveXY(int xMM, int yMM)
+void moveXY(int xSteps, int ySteps)
 {
-  Serial.print("moving ");  Serial.print(xMM); Serial.print(" mm in x-direction");
-  Serial.print("and ");  Serial.print(yMM); Serial.println(" mm in y-direction...");
-  bresenham(xMM / XmmSt, yMM / YmmSt);
+    Serial.print("moving ");  Serial.print(xSteps); Serial.print(" steps in x-direction");
+    Serial.print("and ");  Serial.print(ySteps); Serial.println(" steps in y-direction...");
+    bresenham(xSteps, ySteps);
 }
 
 void bresenham(int x1, int y1)
@@ -798,7 +923,212 @@ void circle(int radius)
   ellipse(radius / XmmSt, radius / YmmSt);
 }
 
-void papaPattern(int sideLenght, int offsetMM, int c)
+//               type of the system, lenght of the xAxis (in steps), lenght of the yAxis (in steps), space from one notch to the next (in steps)
+void coordinateSystem(unsInt type, unsInt xLenghtPerSide, unsInt yLenghtPerSide, unsInt notchesSpace)
+{
+    /*TYPES
+     * 0:       |_
+     *
+     * 1:      _|_
+     *          |
+     *
+     * 2:       |_
+     *          |
+     *
+     * 3:      _|
+     *          |
+     *
+     * 4:      _|_
+     *
+     *
+     * 5:      _ _
+     *          |
+     *
+     *
+     * 6:      _|
+     *
+     * 7:      _
+     *          |
+     *
+     * 8:       _
+     *         |
+     *
+     */
+
+    wakeXYup();
+    xAxis.setSpeed(450);
+    yAxis.setSpeed(450);
+
+    switch (type) {
+    case 0: //only quadrant 1 |_
+        Serial.println("Drawing coordinateSystem type 0 |_");
+        up();
+        moveXmm(xLenghtPerSide);
+        down();
+        //draw ordinate
+        if(notchesSpace > 0)    //with notches
+        {
+            for(unsInt i = 0; i < floor(yLenghtPerSide / notchesSpace)-1; i++)
+            {
+                moveYmm(notchesSpace);    //use notches
+                drawHorizontalNotch();
+            }
+            moveYmm(notchesSpace);
+        }
+        else
+            moveYmm(yLenghtPerSide);
+        //draw abscisse
+        if(notchesSpace > 0)    //with notches
+        {
+            for(unsInt i = 0; i < floor(xLenghtPerSide / notchesSpace)-1; i++)
+            {
+                moveXmm(-notchesSpace);    //use notches
+                drawVerticalNotch();
+            }
+            moveXmm(-notchesSpace);
+        }
+        else
+            moveXmm(yLenghtPerSide);
+
+        //go to home
+        moveXmm(yLenghtPerSide);
+
+    break;
+    case 1: //all quadrants +
+        Serial.println("Drawing coordinateSystem type 1 +");
+        up();
+        moveXmm(xLenghtPerSide);
+        down();
+        //draw ordinate
+        if(notchesSpace > 0)    //with notches
+        {
+            for(unsInt i = 0; i < floor(yLenghtPerSide*2 / notchesSpace)-1; i++)
+            {
+                moveYmm(notchesSpace);
+                drawHorizontalNotch();
+            }
+            moveYmm(notchesSpace);
+        }
+        else
+            moveYmm(yLenghtPerSide);
+        //go to home
+        moveYmm(-yLenghtPerSide);
+        //go to left end
+        moveXmm(xLenghtPerSide);
+        //draw abscisse
+        if(notchesSpace > 0)    //with notches
+        {
+            for(unsInt i = 0; i < floor(xLenghtPerSide*2 / notchesSpace)-1; i++)
+            {
+                moveXmm(-notchesSpace);
+                drawVerticalNotch();
+            }
+            moveXmm(-notchesSpace);
+        }
+        else
+            moveXmm(yLenghtPerSide*2);
+
+        //go to home
+        moveXmm(yLenghtPerSide);
+
+    break;
+    default:
+        Serial.println("Not implemented ye!");
+        break;
+    }
+    up();
+    sleepXY();
+}
+
+void drawHorizontalNotch()
+{
+    moveXmm(notchLenghtPerSide);
+    moveXmm(-2*notchLenghtPerSide);
+    moveXmm(notchLenghtPerSide);
+}
+
+void drawVerticalNotch()
+{
+    moveYmm(notchLenghtPerSide);
+    moveYmm(-2*notchLenghtPerSide);
+    moveYmm(notchLenghtPerSide);
+}
+
+void linearFunction(int m, int n, int xLengthPerSide_mm, int quadrants, int unitlength_mm)
+{
+    xAxis.setSpeed(450);
+    yAxis.setSpeed(450);
+    wakeXYup();
+    Serial.print("drawing linear function f(x)="); Serial.print(m); Serial.print("x+"); Serial.println(n);
+    int lastY = 0, intY = 0;
+    int stepsPerUnitX = unitlength_mm/XmmSt;
+    int stepsPerUnitY = unitlength_mm/YmmSt;
+    double y = 0;
+    down();
+    switch(quadrants)
+    {
+        case 1:
+            //first quadrant
+            Serial.println("1st quadrant (of 1)");
+            for(double xSteps = 0;  xSteps < xLengthPerSide_mm/XmmSt;  xSteps++)
+            {
+              // y=mx+n
+              y = m*(xSteps/stepsPerUnitX)+n;
+              //y = y * yScale;
+              intY = round((y*stepsPerUnitY));
+              setPixel(xSteps, intY);
+              xAxis.move(1);
+              //delay(1);
+              if(xSteps > 0)
+              {
+                yAxis.move(intY-lastY);
+                //delay(2);
+              }
+              lastY = intY;
+            }
+        break;
+    }
+    sleepXY();
+}
+
+void linearFunction(int m, int n, int xLengthPerSide_mm, int quadrants, int unitlength_mm)
+{
+    xAxis.setSpeed(450);
+    yAxis.setSpeed(450);
+    wakeXYup();
+    Serial.print("drawing linear function f(x)="); Serial.print(m); Serial.print("x+"); Serial.println(n);
+    int lastY = 0, intY = 0;
+    int stepsPerUnitX = unitlength_mm/XmmSt;
+    int stepsPerUnitY = unitlength_mm/YmmSt;
+    double y = 0;
+    down();
+    switch(quadrants)
+    {
+        case 1:
+            //first quadrant
+            Serial.println("1st quadrant (of 1)");
+            for(double xSteps = 0;  xSteps < xLengthPerSide_mm/XmmSt;  xSteps++)
+            {
+              // y=mx+n
+              y = m*(xSteps/stepsPerUnitX)+n;
+              //y = y * yScale;
+              intY = round((y*stepsPerUnitY));
+              setPixel(xSteps, intY);
+              xAxis.move(1);
+              //delay(1);
+              if(xSteps > 0)
+              {
+                yAxis.move(intY-lastY);
+                //delay(2);
+              }
+              lastY = intY;
+            }
+        break;
+    }
+    sleepXY();
+}
+
+void papaPattern(int sideLenght, int offset, int c)
 {
     wakeXYup();
     down();
@@ -806,8 +1136,8 @@ void papaPattern(int sideLenght, int offsetMM, int c)
     long startPositionY = yAxis.getPosition();
     int sideLenghtStepsX = sideLenght / XmmSt;
     int sideLenghtStepsY = sideLenght / YmmSt;
-    int offsetX = offsetMM / XmmSt;
-    int offsetY = offsetMM / YmmSt;
+    int offsetX = offset / XmmSt;
+    int offsetY = offset / YmmSt;
 
     Serial.println(sideLenghtStepsX);
     Serial.println(sideLenghtStepsY);
@@ -866,7 +1196,7 @@ void papaPatternPlus(int sideLenghtx, int sideLenghty, int offsetMMx, int offset
 
 void setPixel(int x, int y)
 {
-  Serial.print(x); /*Serial.print("\t");*/ Serial.println(y);
+  //Serial.print(x); /*Serial.print("\t");*/ Serial.println(y);
   /*for(int i = 0; i < y; i++)
     Serial.print(" ");
   Serial.println(".");*/
@@ -883,5 +1213,3 @@ void sleepXY()
     xAxis.sleep();
     yAxis.sleep();
 }
-
-
