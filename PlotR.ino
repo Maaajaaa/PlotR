@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "plottraxis3.h"
 #include "Servo.h"
+#include "Streaming.h"
 
 //PlotterAxis3(int NumberOfSteps, int DirectionPin,int StepPin, int SleepPin, int ForklightPin);
 /*PlottRAxis3 xAxis(48, 4, 5, 6, 2);
@@ -39,6 +40,7 @@ void sleepXY();
 
 void coordinateSystem(unsInt type, unsInt xLenghtPerSide, unsInt yLenghtPerSide, unsInt notchesSpace);
 void linearFunction(int m, int n, int xLengthPerSide_mm, int quadrants, int unitlength_mm);
+void quadraticFunction(int a, int b,int c, int xLengthPerSide_mm, int quadrants, int unitlength_mm);
 void drawHorizontalNotch();
 void drawVerticalNotch();
 
@@ -87,7 +89,7 @@ void loop()
 
 void diagonal(int lenght, int direction = 1)
 {
-  /*wakeXYup();
+  wakeXYup();
   if (lenght < 0)
   {
     Serial.println("ERROR only positve values are supported (yet) for diagonal"); return;
@@ -144,7 +146,7 @@ void diagonal(int lenght, int direction = 1)
       }
     break;
   }
-  sleepXY();*/
+  sleepXY();
 }
 
 int processInputCommand(String inputString)
@@ -698,6 +700,19 @@ int processInputCommand(String inputString)
           parametersOK = false;
   }
 
+  if(methode.equalsIgnoreCase("quadFunct"))
+  {
+      validMethode = true;
+      if(/*amountOfParameters == 6*/true)
+      {
+        parametersOK = true;
+        quadraticFunction(parameters[0], parameters[1] , parameters[2], parameters[3],parameters[4],parameters[5]);
+        Serial.println("[done]");
+      }
+      else
+          parametersOK = false;
+  }
+
   if(!validMethode)
   {
     Serial.print(methode);
@@ -728,7 +743,7 @@ void help()
   /*Serial.println("enable()   enableX()     enableY()");*/
   Serial.println(/*"statusX()  statusY()     "*/"positionX()   positionY()");
   /*Serial.println("disable()  disableX()    disableY()");*/
-  Serial.println("square(l)  diagonal(l,d) circle()      ellipse()");
+  Serial.println("square(l)  diagonal(l,d) circle(d)      ellipse(w,h)");
 }
 
 void up()
@@ -1091,12 +1106,12 @@ void linearFunction(int m, int n, int xLengthPerSide_mm, int quadrants, int unit
     sleepXY();
 }
 
-void linearFunction(int m, int n, int xLengthPerSide_mm, int quadrants, int unitlength_mm)
+void quadraticFunction(int a, int b,int c, int xLengthPerSide_mm, int quadrants, int unitlength_mm)
 {
     xAxis.setSpeed(450);
     yAxis.setSpeed(450);
     wakeXYup();
-    Serial.print("drawing linear function f(x)="); Serial.print(m); Serial.print("x+"); Serial.println(n);
+    Serial << "drawing linear function f(x)=" << a << "x²+" << b << "x+" << c << endl;
     int lastY = 0, intY = 0;
     int stepsPerUnitX = unitlength_mm/XmmSt;
     int stepsPerUnitY = unitlength_mm/YmmSt;
@@ -1109,8 +1124,8 @@ void linearFunction(int m, int n, int xLengthPerSide_mm, int quadrants, int unit
             Serial.println("1st quadrant (of 1)");
             for(double xSteps = 0;  xSteps < xLengthPerSide_mm/XmmSt;  xSteps++)
             {
-              // y=mx+n
-              y = m*(xSteps/stepsPerUnitX)+n;
+              // y=ax²+bx+c
+              y = a*sq(xSteps/stepsPerUnitX)+(b*xSteps/stepsPerUnitX)+c;
               //y = y * yScale;
               intY = round((y*stepsPerUnitY));
               setPixel(xSteps, intY);
